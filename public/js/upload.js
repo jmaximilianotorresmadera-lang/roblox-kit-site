@@ -20,11 +20,11 @@ function setCategory(category) {
   fieldsStudio.classList.toggle('hidden', isLite);
   fieldsLite.classList.toggle('hidden', !isLite);
   fieldsVideo.classList.toggle('hidden', !isLite);
-  imageLabel.textContent = isLite ? 'Foto del kit' : 'Imagen (opcional)';
+  imageLabel.textContent = 'Foto del kit (opcional)';
 
   fileInput.required = !isLite;
   robloxIdInput.required = isLite;
-  videoInput.required = isLite;
+  videoInput.required = false;
 }
 
 catButtons.forEach((btn) => {

@@ -176,8 +176,6 @@ app.post(
           return cleanupAndFail(400, 'Falta el ID de Roblox del kit.');
         const photo = files.image && files.image[0];
         const video = files.video && files.video[0];
-        if (!photo) return cleanupAndFail(400, 'Falta la foto del kit.');
-        if (!video) return cleanupAndFail(400, 'Falta el video del kit.');
 
         kit = {
           id,
@@ -185,8 +183,8 @@ app.post(
           category,
           description: description.trim(),
           robloxId: robloxId.trim().slice(0, 30),
-          image: `/uploads/img/${photo.filename}`,
-          video: `/uploads/video/${video.filename}`,
+          image: photo ? `/uploads/img/${photo.filename}` : null,
+          video: video ? `/uploads/video/${video.filename}` : null,
           tags: parsedTags,
           author: (author || 'Anonimo').trim().slice(0, 40),
           createdAt: new Date().toISOString(),

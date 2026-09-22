@@ -25,8 +25,12 @@ function renderKitCard(kit) {
   const media = isLite
     ? `
       <div class="kit-media">
-        <img src="${kit.image}" alt="${escapeHtml(kit.name)}" loading="lazy" />
-        ${kit.video ? `<video src="${kit.video}" controls preload="none" poster="${kit.image}"></video>` : ''}
+        ${
+          kit.image
+            ? `<img src="${kit.image}" alt="${escapeHtml(kit.name)}" loading="lazy" />`
+            : `<div class="kit-noimg"><span>Studio Lite</span></div>`
+        }
+        ${kit.video ? `<video src="${kit.video}" controls preload="none" ${kit.image ? `poster="${kit.image}"` : ''}></video>` : ''}
       </div>`
     : `<img class="kit-thumb" src="${kit.image}" alt="${escapeHtml(kit.name)}" loading="lazy" />`;
 

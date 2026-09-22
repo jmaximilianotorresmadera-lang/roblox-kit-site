@@ -236,6 +236,22 @@ body {
   max-height: 200px;
 }
 
+.kit-noimg {
+  width: 100%;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255, 92, 138, 0.15), rgba(124, 92, 255, 0.15));
+}
+
+.kit-noimg span {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--accent-2);
+  letter-spacing: 0.02em;
+}
+
 .kit-card-body {
   padding: 18px;
   display: flex;
