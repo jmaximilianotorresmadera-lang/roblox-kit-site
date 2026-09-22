@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kits para Roblox Studio</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1 class="logo">Roblox <span>Kits</span></h1>
+      <p class="tagline">Kits listos para usar en Roblox Studio y Roblox Studio Lite</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="controls">
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" data-category="all">Todos</button>
+        <button class="tab-btn" data-category="roblox-studio">Roblox Studio</button>
+        <button class="tab-btn" data-category="roblox-studio-lite">Roblox Studio Lite</button>
+      </div>
+      <input
+        id="search-input"
+        type="search"
+        placeholder="Buscar kits..."
+        aria-label="Buscar kits"
+      />
+    </section>
+
+    <section id="kits-grid" class="kits-grid">
+      <p class="loading">Cargando kits...</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Hecho para la comunidad de Roblox Studio &amp; Roblox Studio Lite.</p>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
+  <rect width="400" height="240" fill="#171a23"/>
+  <rect x="1" y="1" width="398" height="238" fill="none" stroke="#262a36" stroke-width="2"/>
+  <g fill="#00a2ff">
+    <rect x="150" y="80" width="100" height="100" rx="10"/>
+  </g>
+  <text x="200" y="205" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9096a8" text-anchor="middle">
+    Kit preview
+  </text>
+</svg>
