@@ -26,16 +26,15 @@
   </header>
 
   <main class="container form-page">
-    <h1 id="account-title">Mi cuenta</h1>
-
-    <div class="category-toggle" style="margin-bottom: 24px;">
-      <button type="button" class="cat-btn active" data-mode="login">Iniciar sesión</button>
-      <button type="button" class="cat-btn" data-mode="signup">Registrarme</button>
-    </div>
+    <h1>Entrar con tu email</h1>
+    <p class="form-intro">
+      No necesitás contraseña. Poné tu email, te mandamos un link, y al hacer clic quedás
+      adentro. Si es la primera vez, se crea tu cuenta sola.
+    </p>
 
     <form id="account-form" class="kit-form">
-      <div class="field-group hidden" id="field-username">
-        <label for="username">Tu nombre (se va a ver en tus kits)</label>
+      <div class="field-group">
+        <label for="username">Tu nombre (se va a ver en tus kits, solo hace falta la primera vez)</label>
         <input type="text" id="username" maxlength="30" placeholder="Ej: Max" />
       </div>
 
@@ -44,12 +43,7 @@
         <input type="email" id="email" required placeholder="tu@email.com" />
       </div>
 
-      <div class="field-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" required minlength="6" placeholder="Mínimo 6 caracteres" />
-      </div>
-
-      <button type="submit" class="btn-primary" id="account-submit">Iniciar sesión</button>
+      <button type="submit" class="btn-primary" id="account-submit">Enviarme el link de acceso</button>
       <p id="account-message" class="form-message" role="status"></p>
     </form>
 
