@@ -9,33 +9,75 @@ function categoryLabel(category) {
   return category === 'roblox-studio-lite' ? 'Studio Lite' : 'Roblox Studio';
 }
 
+function escapeHtml(str = '') {
+  return str.replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[c]));
+}
+
+function renderKitCard(kit) {
+  const isLite = kit.category === 'roblox-studio-lite';
+
+  const media = isLite
+    ? `
+      <div class="kit-media">
+        <img src="${kit.image}" alt="${escapeHtml(kit.name)}" loading="lazy" />
+        ${kit.video ? `<video src="${kit.video}" controls preload="none" poster="${kit.image}"></video>` : ''}
+      </div>`
+    : `<img class="kit-thumb" src="${kit.image}" alt="${escapeHtml(kit.name)}" loading="lazy" />`;
+
+  const action = isLite
+    ? `
+      <div class="lite-id" title="ID de Roblox del kit">
+        <span class="lite-id-label">ID Roblox</span>
+        <code>${escapeHtml(kit.robloxId || '—')}</code>
+        <button class="copy-btn" type="button" data-id="${escapeHtml(kit.robloxId || '')}">
+          Copiar
+        </button>
+      </div>`
+    : `<a class="download-btn" href="${kit.file}" download>Descargar v${kit.version || '1.0.0'}</a>`;
+
+  return `
+    <article class="kit-card">
+      ${media}
+      <div class="kit-card-body">
+        <span class="badge ${isLite ? 'lite' : ''}">${categoryLabel(kit.category)}</span>
+        <h3>${escapeHtml(kit.name)}</h3>
+        <p>${escapeHtml(kit.description)}</p>
+        <div class="tags">
+          ${(kit.tags || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+        </div>
+        <div class="kit-meta">por ${escapeHtml(kit.author || 'Anonimo')}</div>
+        ${action}
+      </div>
+    </article>`;
+}
+
 function renderKits(kits) {
   if (!kits.length) {
     grid.innerHTML = '<p class="empty">No se encontraron kits.</p>';
     return;
   }
 
-  grid.innerHTML = kits
-    .map(
-      (kit) => `
-      <article class="kit-card">
-        <img src="${kit.image}" alt="${kit.name}" />
-        <div class="kit-card-body">
-          <span class="badge ${kit.category === 'roblox-studio-lite' ? 'lite' : ''}">
-            ${categoryLabel(kit.category)}
-          </span>
-          <h3>${kit.name}</h3>
-          <p>${kit.description}</p>
-          <div class="tags">
-            ${kit.tags.map((t) => `<span class="tag">${t}</span>`).join('')}
-          </div>
-          <a class="download-btn" href="${kit.file}" download>
-            Descargar v${kit.version}
-          </a>
-        </div>
-      </article>`
-    )
-    .join('');
+  grid.innerHTML = kits.map(renderKitCard).join('');
+
+  grid.querySelectorAll('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      try {
+        await navigator.clipboard.writeText(id);
+        const original = btn.textContent;
+        btn.textContent = '¡Copiado!';
+        setTimeout(() => (btn.textContent = original), 1200);
+      } catch {
+        alert(`ID: ${id}`);
+      }
+    });
+  });
 }
 
 async function fetchKits() {

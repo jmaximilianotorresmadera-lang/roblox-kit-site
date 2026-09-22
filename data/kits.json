@@ -7,7 +7,13 @@
     "version": "1.0.0",
     "image": "/img/placeholder.svg",
     "file": "/downloads/starter-ui-kit.zip",
-    "tags": ["UI", "HUD", "Menus"]
+    "tags": [
+      "UI",
+      "HUD",
+      "Menus"
+    ],
+    "author": "Sitio",
+    "createdAt": "2026-09-22T00:00:00.000Z"
   },
   {
     "id": "combat-system-kit",
@@ -17,26 +23,44 @@
     "version": "1.2.0",
     "image": "/img/placeholder.svg",
     "file": "/downloads/combat-system-kit.zip",
-    "tags": ["Scripts", "Combate", "Gameplay"]
+    "tags": [
+      "Scripts",
+      "Combate",
+      "Gameplay"
+    ],
+    "author": "Sitio",
+    "createdAt": "2026-09-22T00:00:00.000Z"
   },
   {
     "id": "lite-building-kit",
     "name": "Lite Building Kit",
     "category": "roblox-studio-lite",
     "description": "Modelos y piezas optimizadas para construir rápido en Roblox Studio Lite (móvil).",
-    "version": "1.0.0",
+    "robloxId": "0000000000",
     "image": "/img/placeholder.svg",
-    "file": "/downloads/lite-building-kit.zip",
-    "tags": ["Construccion", "Mobile", "Assets"]
+    "video": null,
+    "tags": [
+      "Construccion",
+      "Mobile",
+      "Assets"
+    ],
+    "author": "Sitio",
+    "createdAt": "2026-09-22T00:00:00.000Z"
   },
   {
     "id": "lite-mobile-controls-kit",
     "name": "Lite Mobile Controls Kit",
     "category": "roblox-studio-lite",
     "description": "Controles táctiles simplificados para probar juegos directamente desde Roblox Studio Lite.",
-    "version": "1.0.0",
+    "robloxId": "0000000001",
     "image": "/img/placeholder.svg",
-    "file": "/downloads/lite-mobile-controls-kit.zip",
-    "tags": ["Controles", "Mobile", "UI"]
+    "video": null,
+    "tags": [
+      "Controles",
+      "Mobile",
+      "UI"
+    ],
+    "author": "Sitio",
+    "createdAt": "2026-09-22T00:00:00.000Z"
   }
 ]

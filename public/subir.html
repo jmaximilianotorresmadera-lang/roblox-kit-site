@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subir kit - Roblox Kits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/">Roblox <span>Kits</span></a>
+      <nav class="main-nav">
+        <a href="/">Explorar</a>
+        <a href="/subir.html" class="nav-cta active">Subir kit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container form-page">
+    <h1>Subí tu kit</h1>
+    <p class="form-intro">
+      Elegí si tu kit es para <strong>Roblox Studio</strong> (subís un .zip) o para
+      <strong>Roblox Studio Lite</strong> (mostrás el ID del lugar de Roblox, una foto y un video,
+      sin descarga).
+    </p>
+
+    <form id="kit-form" class="kit-form" enctype="multipart/form-data">
+      <div class="field-group">
+        <label>Categoría</label>
+        <div class="category-toggle">
+          <button type="button" class="cat-btn active" data-category="roblox-studio">
+            Roblox Studio
+          </button>
+          <button type="button" class="cat-btn" data-category="roblox-studio-lite">
+            Roblox Studio Lite
+          </button>
+        </div>
+        <input type="hidden" name="category" id="category-input" value="roblox-studio" />
+      </div>
+
+      <div class="field-group">
+        <label for="name">Nombre del kit</label>
+        <input type="text" id="name" name="name" required maxlength="60" placeholder="Ej: Kit de UI para tienda" />
+      </div>
+
+      <div class="field-group">
+        <label for="author">Tu nombre (opcional)</label>
+        <input type="text" id="author" name="author" maxlength="40" placeholder="Ej: Max" />
+      </div>
+
+      <div class="field-group">
+        <label for="description">Descripción</label>
+        <textarea id="description" name="description" required maxlength="300" rows="3"
+          placeholder="Contá qué trae el kit y para qué sirve"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="tags">Etiquetas (separadas por coma)</label>
+        <input type="text" id="tags" name="tags" placeholder="UI, Combate, Mobile" />
+      </div>
+
+      <!-- Campos para Roblox Studio -->
+      <div id="fields-studio" class="field-group">
+        <label for="file">Archivo del kit (.zip, máx 60MB)</label>
+        <input type="file" id="file" name="file" accept=".zip" />
+      </div>
+
+      <!-- Campos para Roblox Studio Lite -->
+      <div id="fields-lite" class="field-group hidden">
+        <label for="robloxId">ID del lugar de Roblox</label>
+        <input type="text" id="robloxId" name="robloxId" placeholder="Ej: 123456789" />
+      </div>
+
+      <div id="fields-image" class="field-group">
+        <label for="image" id="image-label">Foto del kit</label>
+        <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
+      </div>
+
+      <div id="fields-video" class="field-group hidden">
+        <label for="video">Video del kit (máx 60MB)</label>
+        <input type="file" id="video" name="video" accept="video/mp4,video/webm,video/quicktime" />
+      </div>
+
+      <button type="submit" class="btn-primary" id="submit-btn">Publicar kit</button>
+      <p id="form-message" class="form-message" role="status"></p>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Hecho para la comunidad de Roblox Studio &amp; Roblox Studio Lite.</p>
+    </div>
+  </footer>
+
+  <script src="/js/upload.js"></script>
+</body>
+</html>

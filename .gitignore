@@ -1,1 +1,7 @@
 ﻿node_modules/
+
+# Archivos subidos por usuarios (no se versionan)
+public/uploads/img/*
+public/uploads/video/*
+!public/uploads/img/.gitkeep
+!public/uploads/video/.gitkeep
