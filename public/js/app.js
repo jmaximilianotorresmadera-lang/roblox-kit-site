@@ -19,16 +19,6 @@ function escapeHtml(str = '') {
   }[c]));
 }
 
-const TOKENS_KEY = 'roblox-kits-my-tokens';
-
-function ownsKit(id) {
-  try {
-    const tokens = JSON.parse(localStorage.getItem(TOKENS_KEY) || '{}');
-    return Boolean(tokens[id]);
-  } catch {
-    return false;
-  }
-}
 
 function renderKitCard(kit) {
   const isLite = kit.category === 'roblox-studio-lite';
@@ -56,9 +46,11 @@ function renderKitCard(kit) {
       </div>`
     : `<a class="download-btn" href="${kit.file}" download>Descargar</a>`;
 
-  const editLink = ownsKit(kit.id)
-    ? `<a class="edit-link" href="/subir.html?edit=${encodeURIComponent(kit.id)}">Actualizar</a>`
-    : '';
+  const editLink = `<a class="edit-link" href="/subir.html?edit=${encodeURIComponent(kit.id)}">Actualizar</a>`;
+
+  const authorLine = kit.updatedBy && kit.updatedBy !== kit.author
+    ? `por ${escapeHtml(kit.author || 'Anonimo')} · editado por ${escapeHtml(kit.updatedBy)}`
+    : `por ${escapeHtml(kit.author || 'Anonimo')}`;
 
   return `
     <article class="kit-card">
@@ -73,7 +65,7 @@ function renderKitCard(kit) {
         <div class="tags">
           ${(kit.tags || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
         </div>
-        <div class="kit-meta">por ${escapeHtml(kit.author || 'Anonimo')}</div>
+        <div class="kit-meta">${authorLine}</div>
         <div class="kit-actions">
           ${action}
           ${editLink}

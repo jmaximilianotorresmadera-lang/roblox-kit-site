@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi cuenta - Roblox Kits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/">Roblox <span>Kits</span></a>
+      <nav class="main-nav">
+        <a href="/">Explorar</a>
+        <a href="/subir.html">Subir kit</a>
+        <span id="auth-status"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container form-page">
+    <h1 id="account-title">Mi cuenta</h1>
+
+    <div class="category-toggle" style="margin-bottom: 24px;">
+      <button type="button" class="cat-btn active" data-mode="login">Iniciar sesión</button>
+      <button type="button" class="cat-btn" data-mode="signup">Registrarme</button>
+    </div>
+
+    <form id="account-form" class="kit-form">
+      <div class="field-group hidden" id="field-username">
+        <label for="username">Tu nombre (se va a ver en tus kits)</label>
+        <input type="text" id="username" maxlength="30" placeholder="Ej: Max" />
+      </div>
+
+      <div class="field-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required placeholder="tu@email.com" />
+      </div>
+
+      <div class="field-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" required minlength="6" placeholder="Mínimo 6 caracteres" />
+      </div>
+
+      <button type="submit" class="btn-primary" id="account-submit">Iniciar sesión</button>
+      <p id="account-message" class="form-message" role="status"></p>
+    </form>
+
+    <div id="logged-in-view" class="hidden">
+      <p>Ya iniciaste sesión como <strong id="logged-in-name"></strong>.</p>
+      <button type="button" class="btn-primary" id="logout-btn">Cerrar sesión</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Hecho para la comunidad de Roblox Studio &amp; Roblox Studio Lite.</p>
+    </div>
+  </footer>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/cuenta.js"></script>
+</body>
+</html>

@@ -23,8 +23,10 @@ const DIR_VIDEO = path.join(__dirname, 'public', 'uploads', 'video');
 // Si no estan configurados, se usa el disco local (se borra en cada redeploy, sirve para probar).
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || 'kits-data';
 const useSupabase = Boolean(SUPABASE_URL && SUPABASE_KEY);
+const authEnabled = Boolean(useSupabase && SUPABASE_ANON_KEY);
 
 const supabase = useSupabase ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
@@ -60,10 +62,29 @@ async function saveKits(kits) {
   fs.writeFileSync(KITS_FILE, json, 'utf-8');
 }
 
-// Oculta el editToken (clave secreta para actualizar el kit) en las respuestas publicas.
-function publicKit(kit) {
-  const { editToken, ...rest } = kit;
-  return rest;
+// Exige una sesion de usuario valida (token de Supabase Auth) para crear/editar kits.
+// Cualquier cuenta registrada puede editar cualquier kit, no solo el suyo.
+async function requireAuth(req, res, next) {
+  if (!authEnabled) {
+    // Sin Supabase Auth configurado (modo local/dev): no se exige login.
+    req.user = { name: 'Anonimo (modo local)' };
+    return next();
+  }
+
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) {
+    return res.status(401).json({ error: 'Necesitas iniciar sesion para hacer esto.' });
+  }
+
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) {
+    return res.status(401).json({ error: 'Tu sesion no es valida, iniciá sesión de nuevo.' });
+  }
+
+  const username = data.user.user_metadata && data.user.user_metadata.username;
+  req.user = { id: data.user.id, name: (username || data.user.email || 'Usuario').slice(0, 40) };
+  next();
 }
 
 function slugify(text) {
@@ -124,6 +145,15 @@ const upload = multer({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
+// Datos publicos (no secretos) para que el frontend pueda hablar con Supabase Auth.
+app.get('/api/config', (req, res) => {
+  res.json({
+    authEnabled,
+    supabaseUrl: authEnabled ? SUPABASE_URL : null,
+    supabaseAnonKey: authEnabled ? SUPABASE_ANON_KEY : null,
+  });
+});
+
 // Lista todos los kits, opcionalmente filtrados por categoria: ?category=roblox-studio | roblox-studio-lite
 app.get('/api/kits', async (req, res) => {
   try {
@@ -146,7 +176,7 @@ app.get('/api/kits', async (req, res) => {
       );
     }
 
-    res.json(result.slice().reverse().map(publicKit));
+    res.json(result.slice().reverse());
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -157,17 +187,18 @@ app.get('/api/kits/:id', async (req, res) => {
     const kits = await loadKits();
     const kit = kits.find((k) => k.id === req.params.id);
     if (!kit) return res.status(404).json({ error: 'Kit no encontrado' });
-    res.json(publicKit(kit));
+    res.json(kit);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Subida de un kit nuevo por parte de cualquier usuario.
+// Subida de un kit nuevo. Requiere estar registrado e iniciar sesion.
 // Roblox Studio -> requiere archivo .zip
 // Roblox Studio Lite -> requiere ID de Roblox (foto y video opcionales, sin descarga)
 app.post(
   '/api/kits',
+  requireAuth,
   upload.fields([
     { name: 'file', maxCount: 1 },
     { name: 'image', maxCount: 1 },
@@ -175,7 +206,7 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      const { name, description, category, tags, author, robloxId, version } = req.body;
+      const { name, description, category, tags, robloxId, version } = req.body;
 
       if (!name || !name.trim()) return res.status(400).json({ error: 'Falta el nombre del kit.' });
       if (!description || !description.trim())
@@ -209,7 +240,6 @@ app.post(
         .slice(0, 8);
 
       const kitVersion = (version || '').trim().slice(0, 20) || '1.0.0';
-      const editToken = crypto.randomBytes(16).toString('hex');
       const now = new Date().toISOString();
 
       let kit;
@@ -229,10 +259,9 @@ app.post(
           image: imageUrl,
           file: zipUrl,
           tags: parsedTags,
-          author: (author || 'Anonimo').trim().slice(0, 40),
+          author: req.user.name,
           createdAt: now,
           updatedAt: now,
-          editToken,
         };
       } else {
         const imageUrl = files.image && files.image[0]
@@ -252,17 +281,14 @@ app.post(
           image: imageUrl,
           video: videoUrl,
           tags: parsedTags,
-          author: (author || 'Anonimo').trim().slice(0, 40),
+          author: req.user.name,
           createdAt: now,
           updatedAt: now,
-          editToken,
         };
       }
 
       kits.push(kit);
       await saveKits(kits);
-      // Se devuelve el editToken solo esta vez: el navegador lo guarda para poder
-      // actualizar este kit despues. El servidor no lo vuelve a mostrar nunca mas.
       res.status(201).json(kit);
     } catch (err) {
       res.status(500).json({ error: 'Error al procesar la subida: ' + err.message });
@@ -271,9 +297,10 @@ app.post(
 );
 
 // Actualiza un kit existente (nueva version, descripcion, archivos, etc).
-// Requiere el editToken que se entrego al crearlo (guardado en el navegador de quien lo subio).
+// Requiere estar registrado e iniciar sesion. Cualquier cuenta puede editar cualquier kit.
 app.put(
   '/api/kits/:id',
+  requireAuth,
   upload.fields([
     { name: 'file', maxCount: 1 },
     { name: 'image', maxCount: 1 },
@@ -286,17 +313,12 @@ app.put(
       if (index === -1) return res.status(404).json({ error: 'Kit no encontrado.' });
 
       const kit = kits[index];
-      const { editToken, description, tags, author, robloxId, version } = req.body;
-
-      if (!editToken || editToken !== kit.editToken) {
-        return res.status(403).json({ error: 'No tenes permiso para actualizar este kit.' });
-      }
+      const { description, tags, robloxId, version } = req.body;
 
       const files = req.files || {};
 
       if (description && description.trim()) kit.description = description.trim().slice(0, 300);
       if (version && version.trim()) kit.version = version.trim().slice(0, 20);
-      if (author && author.trim()) kit.author = author.trim().slice(0, 40);
       if (tags !== undefined) {
         kit.tags = tags
           .split(',')
@@ -315,10 +337,11 @@ app.put(
       }
 
       kit.updatedAt = new Date().toISOString();
+      if (req.user.name !== kit.author) kit.updatedBy = req.user.name;
 
       kits[index] = kit;
       await saveKits(kits);
-      res.json(publicKit(kit));
+      res.json(kit);
     } catch (err) {
       res.status(500).json({ error: 'Error al actualizar el kit: ' + err.message });
     }

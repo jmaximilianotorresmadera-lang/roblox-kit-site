@@ -1,5 +1,5 @@
 const form = document.getElementById('kit-form');
-const catButtons = document.querySelectorAll('.cat-btn');
+const catButtons = document.querySelectorAll('.cat-btn[data-category]');
 const categoryInput = document.getElementById('category-input');
 const fieldsStudio = document.getElementById('fields-studio');
 const fieldsLite = document.getElementById('fields-lite');
@@ -14,25 +14,7 @@ const formTitle = document.getElementById('form-title');
 const formIntro = document.getElementById('form-intro');
 const fileLabel = document.querySelector('label[for="file"]');
 
-const TOKENS_KEY = 'roblox-kits-my-tokens';
-
-function getMyTokens() {
-  try {
-    return JSON.parse(localStorage.getItem(TOKENS_KEY) || '{}');
-  } catch {
-    return {};
-  }
-}
-
-function saveMyToken(id, editToken) {
-  try {
-    const tokens = getMyTokens();
-    tokens[id] = editToken;
-    localStorage.setItem(TOKENS_KEY, JSON.stringify(tokens));
-  } catch {
-    /* localStorage no disponible: no se puede guardar la clave de edicion */
-  }
-}
+const editId = new URLSearchParams(window.location.search).get('edit');
 
 function setCategory(category) {
   categoryInput.value = category;
@@ -46,7 +28,7 @@ function setCategory(category) {
   imageLabel.textContent = 'Foto del kit (opcional)';
 
   fileInput.required = !isLite && !editId;
-  robloxIdInput.required = isLite;
+  robloxIdInput.required = isLite && !editId;
   videoInput.required = false;
 }
 
@@ -54,21 +36,17 @@ catButtons.forEach((btn) => {
   btn.addEventListener('click', () => setCategory(btn.dataset.category));
 });
 
-// --- Modo edicion: /subir.html?edit=<id> ---
-const editId = new URLSearchParams(window.location.search).get('edit');
-let editToken = null;
+async function requireLogin() {
+  const session = await window.RobloxKitsAuth.getSession();
+  if (!session) {
+    const here = window.location.pathname + window.location.search;
+    window.location.href = `/cuenta.html?redirect=${encodeURIComponent(here)}`;
+    return null;
+  }
+  return session;
+}
 
 async function loadForEdit() {
-  editToken = getMyTokens()[editId];
-
-  if (!editToken) {
-    formTitle.textContent = 'No podés editar este kit';
-    formIntro.textContent =
-      'Este kit no fue subido desde este navegador, asi que no tenemos la clave para editarlo.';
-    form.classList.add('hidden');
-    return;
-  }
-
   const res = await fetch(`/api/kits/${editId}`);
   if (!res.ok) {
     formTitle.textContent = 'Kit no encontrado';
@@ -82,7 +60,6 @@ async function loadForEdit() {
 
   document.getElementById('name').value = kit.name;
   document.getElementById('name').readOnly = true;
-  document.getElementById('author').value = kit.author || '';
   document.getElementById('description').value = kit.description;
   document.getElementById('tags').value = (kit.tags || []).join(', ');
   document.getElementById('version').value = kit.version || '1.0.0';
@@ -92,46 +69,40 @@ async function loadForEdit() {
   catButtons.forEach((b) => (b.disabled = true));
 
   if (kit.category === 'roblox-studio') {
-    fileInput.required = false;
     fileLabel.textContent = 'Reemplazar archivo .zip (opcional, dejar vacío para mantener el actual)';
   } else {
     robloxIdInput.value = kit.robloxId || '';
-    robloxIdInput.required = false;
   }
 
   submitBtn.textContent = 'Guardar cambios';
-}
-
-if (editId) {
-  loadForEdit();
 }
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   message.textContent = '';
   message.className = 'form-message';
+
+  const session = await requireLogin();
+  if (!session) return;
+
   submitBtn.disabled = true;
   submitBtn.textContent = editId ? 'Guardando...' : 'Subiendo...';
 
   try {
     const formData = new FormData(form);
+    const headers = { Authorization: `Bearer ${session.access_token}` };
     let res;
 
     if (editId) {
-      formData.set('editToken', editToken);
-      res = await fetch(`/api/kits/${editId}`, { method: 'PUT', body: formData });
+      res = await fetch(`/api/kits/${editId}`, { method: 'PUT', body: formData, headers });
     } else {
-      res = await fetch('/api/kits', { method: 'POST', body: formData });
+      res = await fetch('/api/kits', { method: 'POST', body: formData, headers });
     }
 
     const data = await res.json();
 
     if (!res.ok) {
       throw new Error(data.error || 'No se pudo guardar el kit.');
-    }
-
-    if (!editId && data.editToken) {
-      saveMyToken(data.id, data.editToken);
     }
 
     message.textContent = editId ? '¡Cambios guardados! Redirigiendo...' : '¡Kit publicado! Redirigiendo...';
@@ -147,6 +118,13 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-if (!editId) {
-  setCategory('roblox-studio');
-}
+(async function init() {
+  const session = await requireLogin();
+  if (!session) return; // se esta redirigiendo a /cuenta.html
+
+  if (editId) {
+    await loadForEdit();
+  } else {
+    setCategory('roblox-studio');
+  }
+})();
