@@ -27,12 +27,12 @@
 
   <main class="container form-page">
     <h1>Entrar con tu email</h1>
-    <p class="form-intro">
-      No necesitás contraseña. Poné tu email, te mandamos un link, y al hacer clic quedás
-      adentro. Si es la primera vez, se crea tu cuenta sola.
+    <p class="form-intro" id="intro-text">
+      No necesitás contraseña. Poné tu email, te mandamos un código de 6 dígitos, y lo escribís
+      acá para entrar. Si es la primera vez, se crea tu cuenta sola.
     </p>
 
-    <form id="account-form" class="kit-form">
+    <form id="email-form" class="kit-form">
       <div class="field-group">
         <label for="username">Tu nombre (se va a ver en tus kits, solo hace falta la primera vez)</label>
         <input type="text" id="username" maxlength="30" placeholder="Ej: Max" />
@@ -43,9 +43,21 @@
         <input type="email" id="email" required placeholder="tu@email.com" />
       </div>
 
-      <button type="submit" class="btn-primary" id="account-submit">Enviarme el link de acceso</button>
-      <p id="account-message" class="form-message" role="status"></p>
+      <button type="submit" class="btn-primary" id="email-submit">Enviarme el código</button>
     </form>
+
+    <form id="code-form" class="kit-form hidden">
+      <div class="field-group">
+        <label for="code">Código de 6 dígitos</label>
+        <input type="text" id="code" required maxlength="6" inputmode="numeric" placeholder="123456" />
+      </div>
+      <button type="submit" class="btn-primary" id="code-submit">Confirmar código</button>
+      <button type="button" class="edit-link" id="change-email-btn" style="align-self: flex-start;">
+        Usar otro email
+      </button>
+    </form>
+
+    <p id="account-message" class="form-message" role="status"></p>
 
     <div id="logged-in-view" class="hidden">
       <p>Ya iniciaste sesión como <strong id="logged-in-name"></strong>.</p>

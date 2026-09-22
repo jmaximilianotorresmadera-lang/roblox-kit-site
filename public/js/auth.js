@@ -37,19 +37,28 @@ window.RobloxKitsAuth = (function () {
     return (session.user.user_metadata && session.user.user_metadata.username) || session.user.email;
   }
 
-  // Envia un "link magico" al email: al hacer clic, la persona queda logueada.
-  // Si el email es nuevo, se crea la cuenta sola con ese nombre de usuario.
-  async function sendMagicLink({ email, username, redirectTo }) {
+  // Envia un codigo de 6 digitos al email. Si el email es nuevo, se crea la cuenta
+  // sola con ese nombre de usuario (se confirma en el segundo paso, verifyCode).
+  async function sendCode({ email, username }) {
     const c = await getClient();
     if (!c) throw new Error('El inicio de sesion no esta disponible en este momento.');
     const { error } = await c.auth.signInWithOtp({
       email,
       options: {
         data: username ? { username } : undefined,
-        emailRedirectTo: redirectTo || window.location.origin + '/',
+        shouldCreateUser: true,
       },
     });
     if (error) throw new Error(error.message);
+  }
+
+  // Confirma el codigo de 6 digitos que llego por email y deja la sesion iniciada.
+  async function verifyCode({ email, token }) {
+    const c = await getClient();
+    if (!c) throw new Error('El inicio de sesion no esta disponible en este momento.');
+    const { data, error } = await c.auth.verifyOtp({ email, token, type: 'email' });
+    if (error) throw new Error(error.message);
+    return data;
   }
 
   async function signOut() {
@@ -83,5 +92,5 @@ window.RobloxKitsAuth = (function () {
 
   document.addEventListener('DOMContentLoaded', renderAuthStatus);
 
-  return { getConfig, getClient, getSession, getAccessToken, getDisplayName, sendMagicLink, signOut, renderAuthStatus };
+  return { getConfig, getClient, getSession, getAccessToken, getDisplayName, sendCode, verifyCode, signOut, renderAuthStatus };
 })();
