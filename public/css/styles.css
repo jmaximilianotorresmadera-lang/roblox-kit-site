@@ -279,6 +279,19 @@ body {
   color: var(--text-muted);
 }
 
+.kit-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.version-badge {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
 .badge {
   align-self: flex-start;
   font-size: 0.7rem;
@@ -310,8 +323,15 @@ body {
   border-radius: 999px;
 }
 
-.download-btn {
+.kit-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
   margin-top: 4px;
+}
+
+.download-btn {
+  flex: 1;
   display: inline-block;
   text-align: center;
   background: linear-gradient(90deg, var(--accent), var(--accent-3));
@@ -326,8 +346,23 @@ body {
   filter: brightness(1.08);
 }
 
+.edit-link {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 9px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.edit-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .lite-id {
-  margin-top: 4px;
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -406,8 +441,8 @@ body {
   gap: 8px;
 }
 
-.field-group.hidden {
-  display: none;
+.hidden {
+  display: none !important;
 }
 
 .field-group label {

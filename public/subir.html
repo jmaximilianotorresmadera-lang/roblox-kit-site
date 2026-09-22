@@ -24,11 +24,11 @@
   </header>
 
   <main class="container form-page">
-    <h1>Subí tu kit</h1>
-    <p class="form-intro">
+    <h1 id="form-title">Subí tu kit</h1>
+    <p class="form-intro" id="form-intro">
       Elegí si tu kit es para <strong>Roblox Studio</strong> (subís un .zip) o para
-      <strong>Roblox Studio Lite</strong> (mostrás el ID del lugar de Roblox, una foto y un video,
-      sin descarga).
+      <strong>Roblox Studio Lite</strong> (mostrás el ID del lugar de Roblox, una foto y un video
+      opcionales, sin descarga).
     </p>
 
     <form id="kit-form" class="kit-form" enctype="multipart/form-data">
@@ -64,6 +64,11 @@
       <div class="field-group">
         <label for="tags">Etiquetas (separadas por coma)</label>
         <input type="text" id="tags" name="tags" placeholder="UI, Combate, Mobile" />
+      </div>
+
+      <div class="field-group">
+        <label for="version">Versión</label>
+        <input type="text" id="version" name="version" maxlength="20" placeholder="1.0.0" value="1.0.0" />
       </div>
 
       <!-- Campos para Roblox Studio -->

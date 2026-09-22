@@ -19,6 +19,17 @@ function escapeHtml(str = '') {
   }[c]));
 }
 
+const TOKENS_KEY = 'roblox-kits-my-tokens';
+
+function ownsKit(id) {
+  try {
+    const tokens = JSON.parse(localStorage.getItem(TOKENS_KEY) || '{}');
+    return Boolean(tokens[id]);
+  } catch {
+    return false;
+  }
+}
+
 function renderKitCard(kit) {
   const isLite = kit.category === 'roblox-studio-lite';
 
@@ -43,20 +54,30 @@ function renderKitCard(kit) {
           Copiar
         </button>
       </div>`
-    : `<a class="download-btn" href="${kit.file}" download>Descargar v${kit.version || '1.0.0'}</a>`;
+    : `<a class="download-btn" href="${kit.file}" download>Descargar</a>`;
+
+  const editLink = ownsKit(kit.id)
+    ? `<a class="edit-link" href="/subir.html?edit=${encodeURIComponent(kit.id)}">Actualizar</a>`
+    : '';
 
   return `
     <article class="kit-card">
       ${media}
       <div class="kit-card-body">
-        <span class="badge ${isLite ? 'lite' : ''}">${categoryLabel(kit.category)}</span>
+        <div class="kit-card-top">
+          <span class="badge ${isLite ? 'lite' : ''}">${categoryLabel(kit.category)}</span>
+          <span class="version-badge">v${escapeHtml(kit.version || '1.0.0')}</span>
+        </div>
         <h3>${escapeHtml(kit.name)}</h3>
         <p>${escapeHtml(kit.description)}</p>
         <div class="tags">
           ${(kit.tags || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
         </div>
         <div class="kit-meta">por ${escapeHtml(kit.author || 'Anonimo')}</div>
-        ${action}
+        <div class="kit-actions">
+          ${action}
+          ${editLink}
+        </div>
       </div>
     </article>`;
 }

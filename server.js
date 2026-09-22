@@ -60,6 +60,12 @@ async function saveKits(kits) {
   fs.writeFileSync(KITS_FILE, json, 'utf-8');
 }
 
+// Oculta el editToken (clave secreta para actualizar el kit) en las respuestas publicas.
+function publicKit(kit) {
+  const { editToken, ...rest } = kit;
+  return rest;
+}
+
 function slugify(text) {
   return text
     .toString()
@@ -140,7 +146,7 @@ app.get('/api/kits', async (req, res) => {
       );
     }
 
-    res.json(result.slice().reverse());
+    res.json(result.slice().reverse().map(publicKit));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -151,7 +157,7 @@ app.get('/api/kits/:id', async (req, res) => {
     const kits = await loadKits();
     const kit = kits.find((k) => k.id === req.params.id);
     if (!kit) return res.status(404).json({ error: 'Kit no encontrado' });
-    res.json(kit);
+    res.json(publicKit(kit));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -169,7 +175,7 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      const { name, description, category, tags, author, robloxId } = req.body;
+      const { name, description, category, tags, author, robloxId, version } = req.body;
 
       if (!name || !name.trim()) return res.status(400).json({ error: 'Falta el nombre del kit.' });
       if (!description || !description.trim())
@@ -202,6 +208,10 @@ app.post(
         .filter(Boolean)
         .slice(0, 8);
 
+      const kitVersion = (version || '').trim().slice(0, 20) || '1.0.0';
+      const editToken = crypto.randomBytes(16).toString('hex');
+      const now = new Date().toISOString();
+
       let kit;
 
       if (category === 'roblox-studio') {
@@ -215,12 +225,14 @@ app.post(
           name: name.trim(),
           category,
           description: description.trim(),
-          version: '1.0.0',
+          version: kitVersion,
           image: imageUrl,
           file: zipUrl,
           tags: parsedTags,
           author: (author || 'Anonimo').trim().slice(0, 40),
-          createdAt: new Date().toISOString(),
+          createdAt: now,
+          updatedAt: now,
+          editToken,
         };
       } else {
         const imageUrl = files.image && files.image[0]
@@ -235,20 +247,80 @@ app.post(
           name: name.trim(),
           category,
           description: description.trim(),
+          version: kitVersion,
           robloxId: robloxId.trim().slice(0, 30),
           image: imageUrl,
           video: videoUrl,
           tags: parsedTags,
           author: (author || 'Anonimo').trim().slice(0, 40),
-          createdAt: new Date().toISOString(),
+          createdAt: now,
+          updatedAt: now,
+          editToken,
         };
       }
 
       kits.push(kit);
       await saveKits(kits);
+      // Se devuelve el editToken solo esta vez: el navegador lo guarda para poder
+      // actualizar este kit despues. El servidor no lo vuelve a mostrar nunca mas.
       res.status(201).json(kit);
     } catch (err) {
       res.status(500).json({ error: 'Error al procesar la subida: ' + err.message });
+    }
+  }
+);
+
+// Actualiza un kit existente (nueva version, descripcion, archivos, etc).
+// Requiere el editToken que se entrego al crearlo (guardado en el navegador de quien lo subio).
+app.put(
+  '/api/kits/:id',
+  upload.fields([
+    { name: 'file', maxCount: 1 },
+    { name: 'image', maxCount: 1 },
+    { name: 'video', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const kits = await loadKits();
+      const index = kits.findIndex((k) => k.id === req.params.id);
+      if (index === -1) return res.status(404).json({ error: 'Kit no encontrado.' });
+
+      const kit = kits[index];
+      const { editToken, description, tags, author, robloxId, version } = req.body;
+
+      if (!editToken || editToken !== kit.editToken) {
+        return res.status(403).json({ error: 'No tenes permiso para actualizar este kit.' });
+      }
+
+      const files = req.files || {};
+
+      if (description && description.trim()) kit.description = description.trim().slice(0, 300);
+      if (version && version.trim()) kit.version = version.trim().slice(0, 20);
+      if (author && author.trim()) kit.author = author.trim().slice(0, 40);
+      if (tags !== undefined) {
+        kit.tags = tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+          .slice(0, 8);
+      }
+
+      if (kit.category === 'roblox-studio') {
+        if (files.file && files.file[0]) kit.file = await saveUploadedFile(files.file[0], 'zip');
+        if (files.image && files.image[0]) kit.image = await saveUploadedFile(files.image[0], 'img');
+      } else {
+        if (robloxId && robloxId.trim()) kit.robloxId = robloxId.trim().slice(0, 30);
+        if (files.image && files.image[0]) kit.image = await saveUploadedFile(files.image[0], 'img');
+        if (files.video && files.video[0]) kit.video = await saveUploadedFile(files.video[0], 'video');
+      }
+
+      kit.updatedAt = new Date().toISOString();
+
+      kits[index] = kit;
+      await saveKits(kits);
+      res.json(publicKit(kit));
+    } catch (err) {
+      res.status(500).json({ error: 'Error al actualizar el kit: ' + err.message });
     }
   }
 );
