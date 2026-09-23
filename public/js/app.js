@@ -46,8 +46,6 @@ function renderKitCard(kit) {
       </div>`
     : `<a class="download-btn" href="${kit.file}" download>Descargar</a>`;
 
-  const editLink = `<a class="edit-link" href="/subir.html?edit=${encodeURIComponent(kit.id)}">Actualizar</a>`;
-
   return `
     <article class="kit-card">
       ${media}
@@ -64,7 +62,6 @@ function renderKitCard(kit) {
         <div class="kit-meta">por ${escapeHtml(kit.author || 'Anonimo')}</div>
         <div class="kit-actions">
           ${action}
-          ${editLink}
         </div>
       </div>
     </article>`;

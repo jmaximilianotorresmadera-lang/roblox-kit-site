@@ -346,20 +346,6 @@ body {
   filter: brightness(1.08);
 }
 
-.edit-link {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  border: 1px solid var(--border);
-  padding: 9px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
-}
-
-.edit-link:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
 
 .lite-id {
   flex: 1;

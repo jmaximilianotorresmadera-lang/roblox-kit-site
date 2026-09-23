@@ -259,57 +259,6 @@ app.post(
   }
 );
 
-// Actualiza un kit existente (nueva version, descripcion, archivos, etc).
-// Sin necesidad de cuenta: cualquiera puede editar cualquier kit.
-app.put(
-  '/api/kits/:id',
-  upload.fields([
-    { name: 'file', maxCount: 1 },
-    { name: 'image', maxCount: 1 },
-    { name: 'video', maxCount: 1 },
-  ]),
-  async (req, res) => {
-    try {
-      const kits = await loadKits();
-      const index = kits.findIndex((k) => k.id === req.params.id);
-      if (index === -1) return res.status(404).json({ error: 'Kit no encontrado.' });
-
-      const kit = kits[index];
-      const { description, tags, author, robloxId, version } = req.body;
-
-      const files = req.files || {};
-
-      if (description && description.trim()) kit.description = description.trim().slice(0, 300);
-      if (version && version.trim()) kit.version = version.trim().slice(0, 20);
-      if (author && author.trim()) kit.author = author.trim().slice(0, 40);
-      if (tags !== undefined) {
-        kit.tags = tags
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean)
-          .slice(0, 8);
-      }
-
-      if (kit.category === 'roblox-studio') {
-        if (files.file && files.file[0]) kit.file = await saveUploadedFile(files.file[0], 'zip');
-        if (files.image && files.image[0]) kit.image = await saveUploadedFile(files.image[0], 'img');
-      } else {
-        if (robloxId && robloxId.trim()) kit.robloxId = robloxId.trim().slice(0, 30);
-        if (files.image && files.image[0]) kit.image = await saveUploadedFile(files.image[0], 'img');
-        if (files.video && files.video[0]) kit.video = await saveUploadedFile(files.video[0], 'video');
-      }
-
-      kit.updatedAt = new Date().toISOString();
-
-      kits[index] = kit;
-      await saveKits(kits);
-      res.json(kit);
-    } catch (err) {
-      res.status(500).json({ error: 'Error al actualizar el kit: ' + err.message });
-    }
-  }
-);
-
 // Manejo de errores de multer (archivo muy grande, extension no permitida, etc.)
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError || err) {
