@@ -95,7 +95,7 @@ async function saveUploadedFile(file, kind) {
 
 // --- Subida de archivos (multer guarda en memoria; el destino final lo decide saveUploadedFile) ---
 const ALLOWED = {
-  file: ['.zip'],
+  file: ['.zip', '.rbxm', '.rbxmx'],
   image: ['.png', '.jpg', '.jpeg', '.webp', '.gif'],
   video: ['.mp4', '.webm', '.mov'],
 };
@@ -181,7 +181,7 @@ app.post(
       const files = req.files || {};
 
       if (category === 'roblox-studio' && !(files.file && files.file[0])) {
-        return res.status(400).json({ error: 'Falta el archivo .zip del kit.' });
+        return res.status(400).json({ error: 'Falta el archivo del kit (.zip, .rbxm o .rbxmx).' });
       }
       if (category === 'roblox-studio-lite' && (!robloxId || !robloxId.trim())) {
         return res.status(400).json({ error: 'Falta el ID de Roblox del kit.' });

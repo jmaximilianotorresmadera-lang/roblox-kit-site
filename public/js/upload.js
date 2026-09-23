@@ -60,7 +60,7 @@ async function loadForEdit() {
   catButtons.forEach((b) => (b.disabled = true));
 
   if (kit.category === 'roblox-studio') {
-    fileLabel.textContent = 'Reemplazar archivo .zip (opcional, dejar vacío para mantener el actual)';
+    fileLabel.textContent = 'Reemplazar archivo (.zip, .rbxm o .rbxmx, opcional, dejar vacío para mantener el actual)';
   } else {
     robloxIdInput.value = kit.robloxId || '';
   }
