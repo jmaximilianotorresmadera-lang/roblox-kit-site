@@ -48,10 +48,6 @@ function renderKitCard(kit) {
 
   const editLink = `<a class="edit-link" href="/subir.html?edit=${encodeURIComponent(kit.id)}">Actualizar</a>`;
 
-  const authorLine = kit.updatedBy && kit.updatedBy !== kit.author
-    ? `por ${escapeHtml(kit.author || 'Anonimo')} · editado por ${escapeHtml(kit.updatedBy)}`
-    : `por ${escapeHtml(kit.author || 'Anonimo')}`;
-
   return `
     <article class="kit-card">
       ${media}
@@ -65,7 +61,7 @@ function renderKitCard(kit) {
         <div class="tags">
           ${(kit.tags || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
         </div>
-        <div class="kit-meta">${authorLine}</div>
+        <div class="kit-meta">por ${escapeHtml(kit.author || 'Anonimo')}</div>
         <div class="kit-actions">
           ${action}
           ${editLink}

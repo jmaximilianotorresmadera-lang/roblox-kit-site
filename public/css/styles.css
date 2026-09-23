@@ -79,28 +79,6 @@ body {
   color: var(--text);
 }
 
-#auth-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-#auth-status a {
-  color: var(--text-muted);
-  text-decoration: none;
-}
-
-#auth-status a:hover {
-  color: var(--accent);
-}
-
-.auth-name {
-  color: var(--text);
-  font-weight: 600;
-}
-
 .nav-cta {
   background: linear-gradient(90deg, var(--accent), var(--accent-3));
   color: #06131c !important;

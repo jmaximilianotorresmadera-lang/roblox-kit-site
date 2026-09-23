@@ -36,16 +36,6 @@ catButtons.forEach((btn) => {
   btn.addEventListener('click', () => setCategory(btn.dataset.category));
 });
 
-async function requireLogin() {
-  const session = await window.RobloxKitsAuth.getSession();
-  if (!session) {
-    const here = window.location.pathname + window.location.search;
-    window.location.href = `/cuenta.html?redirect=${encodeURIComponent(here)}`;
-    return null;
-  }
-  return session;
-}
-
 async function loadForEdit() {
   const res = await fetch(`/api/kits/${editId}`);
   if (!res.ok) {
@@ -60,6 +50,7 @@ async function loadForEdit() {
 
   document.getElementById('name').value = kit.name;
   document.getElementById('name').readOnly = true;
+  document.getElementById('author').value = kit.author || '';
   document.getElementById('description').value = kit.description;
   document.getElementById('tags').value = (kit.tags || []).join(', ');
   document.getElementById('version').value = kit.version || '1.0.0';
@@ -81,22 +72,17 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   message.textContent = '';
   message.className = 'form-message';
-
-  const session = await requireLogin();
-  if (!session) return;
-
   submitBtn.disabled = true;
   submitBtn.textContent = editId ? 'Guardando...' : 'Subiendo...';
 
   try {
     const formData = new FormData(form);
-    const headers = { Authorization: `Bearer ${session.access_token}` };
     let res;
 
     if (editId) {
-      res = await fetch(`/api/kits/${editId}`, { method: 'PUT', body: formData, headers });
+      res = await fetch(`/api/kits/${editId}`, { method: 'PUT', body: formData });
     } else {
-      res = await fetch('/api/kits', { method: 'POST', body: formData, headers });
+      res = await fetch('/api/kits', { method: 'POST', body: formData });
     }
 
     const data = await res.json();
@@ -118,13 +104,8 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-(async function init() {
-  const session = await requireLogin();
-  if (!session) return; // se esta redirigiendo a /cuenta.html
-
-  if (editId) {
-    await loadForEdit();
-  } else {
-    setCategory('roblox-studio');
-  }
-})();
+if (editId) {
+  loadForEdit();
+} else {
+  setCategory('roblox-studio');
+}
