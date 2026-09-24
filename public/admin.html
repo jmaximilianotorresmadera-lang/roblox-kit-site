@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Admin - Roblox Kits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/">Roblox <span>Kits</span></a>
+    </div>
+  </header>
+
+  <main class="container form-page">
+    <h1>Administrador</h1>
+    <p class="form-intro">
+      Poné tu clave de administrador una sola vez en cada dispositivo (tu PC y tu celular).
+      Ese dispositivo va a poder borrar kits desde la página principal.
+    </p>
+
+    <form id="admin-form" class="kit-form">
+      <div class="field-group">
+        <label for="admin-key">Clave de administrador</label>
+        <input type="password" id="admin-key" required autocomplete="off" />
+      </div>
+      <button type="submit" class="btn-primary">Activar en este dispositivo</button>
+    </form>
+
+    <div id="admin-active" class="hidden">
+      <p>✔ Este dispositivo es administrador. Ya podés borrar kits desde la <a href="/">página principal</a>.</p>
+      <button type="button" class="btn-primary" id="admin-off">Desactivar en este dispositivo</button>
+    </div>
+
+    <p id="admin-message" class="form-message" role="status"></p>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

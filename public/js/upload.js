@@ -6,6 +6,8 @@ const fieldsLite = document.getElementById('fields-lite');
 const fieldsVideo = document.getElementById('fields-video');
 const imageLabel = document.getElementById('image-label');
 const fileInput = document.getElementById('file');
+const fileLabel = document.getElementById('file-label');
+const pluginHint = document.getElementById('plugin-hint');
 const robloxIdInput = document.getElementById('robloxId');
 const submitBtn = document.getElementById('submit-btn');
 const message = document.getElementById('form-message');
@@ -19,7 +21,16 @@ function setCategory(category) {
   fieldsStudio.classList.toggle('hidden', isLite);
   fieldsLite.classList.toggle('hidden', !isLite);
   fieldsVideo.classList.toggle('hidden', !isLite);
+  pluginHint.classList.toggle('hidden', !isLite);
   imageLabel.textContent = 'Foto del kit (opcional)';
+
+  if (category === 'mapa') {
+    fileLabel.textContent = 'Archivo del mapa (.rbxl, .rbxlx o .zip, máx 50MB)';
+    fileInput.accept = '.rbxl,.rbxlx,.zip';
+  } else {
+    fileLabel.textContent = 'Archivo del kit (.zip, .rbxm o .rbxmx, máx 50MB)';
+    fileInput.accept = '.zip,.rbxm,.rbxmx';
+  }
 
   fileInput.required = !isLite;
   robloxIdInput.required = isLite;

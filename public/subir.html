@@ -26,9 +26,9 @@
   <main class="container form-page">
     <h1 id="form-title">Subí tu kit</h1>
     <p class="form-intro" id="form-intro">
-      Elegí si tu kit es para <strong>Roblox Studio</strong> (subís un .zip, .rbxm o .rbxmx) o para
-      <strong>Roblox Studio Lite</strong> (mostrás el ID del lugar de Roblox, una foto y un video
-      opcionales, sin descarga).
+      Elegí si es un kit de <strong>Roblox Studio</strong> (subís un archivo), un
+      <strong>Mapa</strong> (subís el archivo del mapa) o un kit de
+      <strong>Roblox Studio Lite</strong> (ponés el ID de Roblox, con foto y video opcionales, sin descarga).
     </p>
 
     <form id="kit-form" class="kit-form" enctype="multipart/form-data">
@@ -40,6 +40,9 @@
           </button>
           <button type="button" class="cat-btn" data-category="roblox-studio-lite">
             Roblox Studio Lite
+          </button>
+          <button type="button" class="cat-btn" data-category="mapa">
+            Mapa
           </button>
         </div>
         <input type="hidden" name="category" id="category-input" value="roblox-studio" />
@@ -64,6 +67,10 @@
       <div class="field-group">
         <label for="tags">Etiquetas (separadas por coma)</label>
         <input type="text" id="tags" name="tags" placeholder="UI, Combate, Mobile" />
+        <p class="field-hint hidden" id="plugin-hint">
+          Si ponés la etiqueta <strong>plugin</strong>, verificamos en Roblox que el ID sea un plugin real
+          (si no existe o no es un plugin, no se publica).
+        </p>
       </div>
 
       <div class="field-group">
@@ -71,9 +78,9 @@
         <input type="text" id="version" name="version" maxlength="20" placeholder="1.0.0" value="1.0.0" />
       </div>
 
-      <!-- Campos para Roblox Studio -->
+      <!-- Campos para Roblox Studio y Mapas -->
       <div id="fields-studio" class="field-group">
-        <label for="file">Archivo del kit (.zip, .rbxm o .rbxmx, máx 60MB)</label>
+        <label for="file" id="file-label">Archivo del kit (.zip, .rbxm o .rbxmx, máx 50MB)</label>
         <input type="file" id="file" name="file" accept=".zip,.rbxm,.rbxmx" />
       </div>
 
@@ -89,7 +96,7 @@
       </div>
 
       <div id="fields-video" class="field-group hidden">
-        <label for="video">Video del kit (opcional, máx 60MB)</label>
+        <label for="video">Video del kit (opcional, máx 50MB)</label>
         <input type="file" id="video" name="video" accept="video/mp4,video/webm,video/quicktime" />
       </div>
 
