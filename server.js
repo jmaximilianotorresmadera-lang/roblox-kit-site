@@ -34,10 +34,43 @@ if (useSupabase) {
   console.log('Almacenamiento: disco local (NO persistente entre redeploys)');
 }
 
+// Supabase distingue mayusculas en el nombre del bucket. Se busca el bucket real ignorando
+// mayusculas, asi un "kits-data" vs "Kits-data" mal escrito en Render no rompe el sitio.
+let bucketNamePromise = null;
+function getBucketName() {
+  if (!bucketNamePromise) {
+    const wanted = SUPABASE_BUCKET.trim();
+    bucketNamePromise = supabase.storage
+      .listBuckets()
+      .then(({ data, error }) => {
+        if (error || !data) throw new Error(error ? error.message : 'sin datos');
+        const match = data.find((b) => b.name.toLowerCase() === wanted.toLowerCase());
+        if (match) return match.name;
+        if (data.length === 1) {
+          console.warn(`Bucket "${wanted}" no existe; se usa el unico bucket: "${data[0].name}"`);
+          return data[0].name;
+        }
+        return wanted;
+      })
+      .catch((err) => {
+        bucketNamePromise = null; // reintentar la proxima vez
+        console.warn('No se pudo listar los buckets:', err.message);
+        return wanted;
+      });
+  }
+  return bucketNamePromise;
+}
+
 async function loadKits() {
   if (useSupabase) {
-    const { data, error } = await supabase.storage.from(SUPABASE_BUCKET).download('kits.json');
-    if (error) return []; // todavia no existe: no hay kits subidos
+    const bucket = await getBucketName();
+    const { data, error } = await supabase.storage.from(bucket).download('kits.json');
+    if (error) {
+      // Solo "todavia no existe kits.json" significa lista vacia. Cualquier otro error se
+      // avisa: si no, se podria pisar la lista real de kits con una vacia.
+      if (/object not found/i.test(error.message)) return [];
+      throw new Error('No se pudo leer kits.json de Supabase: ' + error.message);
+    }
     const text = await data.text();
     return JSON.parse(text || '[]');
   }
@@ -48,8 +81,9 @@ async function loadKits() {
 async function saveKits(kits) {
   const json = JSON.stringify(kits, null, 2);
   if (useSupabase) {
+    const bucket = await getBucketName();
     const { error } = await supabase.storage
-      .from(SUPABASE_BUCKET)
+      .from(bucket)
       .upload('kits.json', Buffer.from(json, 'utf-8'), {
         contentType: 'application/json',
         upsert: true,
@@ -102,10 +136,11 @@ async function deleteStoredFile(url) {
   if (!url) return;
   try {
     if (useSupabase) {
-      const marker = `/storage/v1/object/public/${SUPABASE_BUCKET}/`;
+      const bucket = await getBucketName();
+      const marker = `/storage/v1/object/public/${bucket}/`;
       const i = url.indexOf(marker);
       if (i !== -1) {
-        await supabase.storage.from(SUPABASE_BUCKET).remove([decodeURIComponent(url.slice(i + marker.length))]);
+        await supabase.storage.from(bucket).remove([decodeURIComponent(url.slice(i + marker.length))]);
       }
       return;
     }
@@ -139,12 +174,13 @@ async function saveUploadedFile(file, kind) {
   const filename = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}${ext}`;
 
   if (useSupabase) {
+    const bucket = await getBucketName();
     const objectPath = `${kind}/${filename}`;
     const { error } = await supabase.storage
-      .from(SUPABASE_BUCKET)
+      .from(bucket)
       .upload(objectPath, file.buffer, { contentType: file.mimetype, upsert: false });
     if (error) throw new Error('No se pudo subir el archivo: ' + error.message);
-    const { data } = supabase.storage.from(SUPABASE_BUCKET).getPublicUrl(objectPath);
+    const { data } = supabase.storage.from(bucket).getPublicUrl(objectPath);
     return data.publicUrl;
   }
 
